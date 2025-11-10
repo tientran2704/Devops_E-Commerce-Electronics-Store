@@ -15,7 +15,7 @@ export default function Products() {
 	const category = searchParams.get("category_id") || "all";
 	const sort = searchParams.get("sort") || "popular";
 	const page = Number(searchParams.get("page") || 1);
-	const limit = Number(searchParams.get("limit") || 12);
+	const limit = Number(searchParams.get("limit") || 60); // Hiển thị 60 sản phẩm mặc định
 
 	useEffect(() => {
 		setSearchValue(query);
@@ -161,7 +161,7 @@ export default function Products() {
 					<div>
 						{loading
 							? "Đang tải sản phẩm..."
-							: `Có ${meta.total} sản phẩm${query ? ` cho từ khóa “${query}”` : ""}.`}
+							: `Có ${meta.total || products.length} sản phẩm${query ? ` cho từ khóa "${query}"` : ""}.`}
 					</div>
 					{meta.total > meta.limit && (
 						<div className="flex items-center gap-2">
@@ -202,7 +202,6 @@ export default function Products() {
 								<div className="text-lg font-bold text-blue-700">
 									{p.price ? `${Number(p.price).toLocaleString("vi-VN")}₫` : "Liên hệ"}
 								</div>
-								<div className="text-xs text-slate-500">Bảo hành chính hãng. Hỗ trợ kỹ thuật qua Zalo.</div>
 							</div>
 							<span className="mt-4 rounded-full border border-blue-200 bg-blue-50 py-2 text-center text-sm font-semibold text-blue-700">
 								Xem chi tiết

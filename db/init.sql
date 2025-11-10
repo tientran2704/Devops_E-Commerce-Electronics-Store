@@ -1,6 +1,4 @@
--- MySQL schema for electronics e-commerce
-CREATE DATABASE IF NOT EXISTS `${MYSQL_DATABASE}`;
-USE `${MYSQL_DATABASE}`;
+USE ecommerce;
 
 -- Users
 CREATE TABLE IF NOT EXISTS users (
@@ -109,7 +107,22 @@ CREATE TABLE IF NOT EXISTS payments (
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
 
--- Fulltext (for MySQL InnoDB >5.6)
-CREATE FULLTEXT INDEX IF NOT EXISTS idx_products_name_desc ON products (name, description);
+SET @index_exists := (
+  SELECT COUNT(*)
+  FROM information_schema.statistics
+  WHERE table_schema = DATABASE()
+    AND table_name = 'products'
+    AND index_name = 'idx_products_name_desc'
+);
+
+SET @create_index := IF(
+  @index_exists = 0,
+  'CREATE FULLTEXT INDEX idx_products_name_desc ON products (name, description);',
+  'SELECT \"idx_products_name_desc already exists\";'
+);
+
+PREPARE stmt FROM @create_index;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 

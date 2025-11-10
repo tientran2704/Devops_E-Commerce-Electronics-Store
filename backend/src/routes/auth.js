@@ -19,14 +19,26 @@ const loginSchema = Joi.object({
 
 router.post("/register", async (req, res) => {
 	const { error, value } = registerSchema.validate(req.body);
-	if (error) return res.status(400).json({ message: error.message });
+	if (error) {
+		const errorMessage = error.details?.[0]?.message || error.message;
+		if (errorMessage.includes("email")) {
+			return res.status(400).json({ message: "Email không hợp lệ" });
+		}
+		if (errorMessage.includes("password")) {
+			return res.status(400).json({ message: "Mật khẩu phải có ít nhất 6 ký tự" });
+		}
+		if (errorMessage.includes("name")) {
+			return res.status(400).json({ message: "Họ tên phải có ít nhất 2 ký tự" });
+		}
+		return res.status(400).json({ message: errorMessage });
+	}
 	const { name, email, password } = value;
 	try {
 		const [exists] = await dbPool.query("SELECT id FROM users WHERE email = ?", [
 			email
 		]);
 		if (exists.length > 0) {
-			return res.status(409).json({ message: "Email already registered" });
+			return res.status(409).json({ message: "Email đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác." });
 		}
 		const hash = await bcrypt.hash(password, 10);
 		const [result] = await dbPool.query(
@@ -35,7 +47,15 @@ router.post("/register", async (req, res) => {
 		);
 		return res.status(201).json({ id: result.insertId, name, email });
 	} catch (e) {
-		return res.status(500).json({ message: "Registration failed" });
+		console.error("Registration error:", e);
+		// Kiểm tra lỗi database
+		if (e.code === "ER_ACCESS_DENIED_ERROR" || e.code === "ECONNREFUSED") {
+			return res.status(500).json({ message: "Không thể kết nối đến cơ sở dữ liệu. Vui lòng thử lại sau." });
+		}
+		if (e.code === "ER_DUP_ENTRY") {
+			return res.status(409).json({ message: "Email đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác." });
+		}
+		return res.status(500).json({ message: `Đăng ký thất bại: ${e.message || "Lỗi không xác định"}` });
 	}
 });
 

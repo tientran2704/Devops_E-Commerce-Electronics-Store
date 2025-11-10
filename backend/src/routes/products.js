@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
 
 	try {
 		const [rows] = await dbPool.query(
-			`SELECT SQL_CALC_FOUND_ROWS id, name, price, stock, image_url
+			`SELECT SQL_CALC_FOUND_ROWS id, name, description, price, stock, image_url
        FROM products
        ${where}
        ORDER BY id DESC

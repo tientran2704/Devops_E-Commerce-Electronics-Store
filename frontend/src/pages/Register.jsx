@@ -22,18 +22,35 @@ export default function Register() {
 	const onSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
+		
+		// Validation phía client
+		if (!name || name.trim().length < 2) {
+			setError("Họ tên phải có ít nhất 2 ký tự");
+			return;
+		}
+		if (!email || !email.includes("@")) {
+			setError("Email không hợp lệ");
+			return;
+		}
+		if (!password || password.length < 6) {
+			setError("Mật khẩu phải có ít nhất 6 ký tự");
+			return;
+		}
+		
 		setIsSubmitting(true);
 		try {
-			const result = await register({ name, email, password });
+			const result = await register({ name: name.trim(), email: email.trim(), password });
 			if (result.success) {
 				navigate(redirectTo, { replace: true });
 			} else {
-				setError(result.message || "Đăng ký thất bại");
+				setError(result.message || "Đăng ký thất bại. Vui lòng thử lại.");
 			}
-		} catch {
-			setError("Đăng ký thất bại");
+		} catch (error) {
+			console.error("Registration error:", error);
+			setError(error.message || "Đăng ký thất bại. Vui lòng thử lại.");
+		} finally {
+			setIsSubmitting(false);
 		}
-		setIsSubmitting(false);
 	};
 	const submitting = isSubmitting || status === "loading";
 	return (

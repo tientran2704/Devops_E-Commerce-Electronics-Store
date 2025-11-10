@@ -9,10 +9,16 @@ export default function ProductDetail() {
 	const [msg, setMsg] = useState("");
 	useEffect(() => {
 		const base = import.meta.env.VITE_API_BASE || "http://localhost:8080";
-		axios.get(`${base}/api/products`).then((res) => {
-			const p = (res.data.data || []).find(x => String(x.id) === String(id));
-			setProduct(p || null);
-		}).catch(() => setProduct(null));
+		// Lấy sản phẩm theo ID trực tiếp
+		axios.get(`${base}/api/products/${id}`).then((res) => {
+			setProduct(res.data || null);
+		}).catch(() => {
+			// Fallback: tìm trong danh sách nếu endpoint /:id không hoạt động
+			axios.get(`${base}/api/products?limit=1000`).then((res) => {
+				const p = (res.data.data || []).find(x => String(x.id) === String(id));
+				setProduct(p || null);
+			}).catch(() => setProduct(null));
+		});
 	}, [id]);
 	if (!product) {
 		return (
@@ -57,6 +63,14 @@ export default function ProductDetail() {
 								className="w-full object-cover"
 							/>
 						</div>
+						{product.description && (
+							<div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+								<h2 className="text-lg font-semibold text-slate-900">Mô tả sản phẩm</h2>
+								<p className="mt-4 text-sm leading-relaxed text-slate-600 whitespace-pre-line">
+									{product.description}
+								</p>
+							</div>
+						)}
 						<div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
 							<h2 className="text-lg font-semibold text-slate-900">Thông tin kỹ thuật</h2>
 							<ul className="mt-4 space-y-3 text-sm text-slate-600">
@@ -80,9 +94,6 @@ export default function ProductDetail() {
 								className="mt-6 w-full rounded-full bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200 hover:bg-blue-700"
 							>
 								Thêm vào giỏ hàng
-							</button>
-							<button className="mt-3 w-full rounded-full border border-blue-200 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50">
-								Tư vấn kỹ thuật nhanh
 							</button>
 							{msg && (
 								<div className="mt-4 rounded-2xl bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-700">

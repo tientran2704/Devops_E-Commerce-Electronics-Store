@@ -17,6 +17,12 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   backend:
     build:
@@ -29,10 +35,14 @@ services:
     environment:
       DB_HOST: db
       DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-ecomuser}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-ecompass}
+      DB_NAME: ${MYSQL_DATABASE:-ecommerce}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
