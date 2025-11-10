@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.DS_Store
+*.log
+coverage
+docker-data
+frontend/.env
+backend/.env
+
+
