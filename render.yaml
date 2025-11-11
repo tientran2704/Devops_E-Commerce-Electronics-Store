@@ -1,11 +1,15 @@
 services:
   # Frontend Service
+  # LƯU Ý: Cập nhật tên service và URL để khớp với tên service thực tế trên Render
+  # URL sẽ có dạng: https://<service-name>.onrender.com
   - type: web
     name: ecommerce-frontend
     env: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
     envVars:
+      # QUAN TRỌNG: Cập nhật URL này để khớp với URL backend service thực tế của bạn
+      # Ví dụ: https://ecommerce-backend.onrender.com hoặc https://devops-e-commerce-electronics-store-backend.onrender.com
       - key: VITE_API_BASE
         sync: false
         value: https://ecommerce-backend.onrender.com
@@ -13,6 +17,7 @@ services:
     startCommand: ""
     
   # Backend Service
+  # LƯU Ý: Cập nhật tên service và URL để khớp với tên service thực tế trên Render
   - type: web
     name: ecommerce-backend
     env: docker
@@ -23,6 +28,12 @@ services:
         value: production
       - key: PORT
         value: 8080
+      # QUAN TRỌNG: Cập nhật URL này để khớp với URL frontend service thực tế của bạn
+      # Backend sẽ cho phép CORS từ URL này
+      # Có thể đặt nhiều URL phân cách bằng dấu phẩy: "https://url1.com,https://url2.com"
+      - key: FRONTEND_URL
+        sync: false
+        value: https://ecommerce-frontend.onrender.com
       - key: DB_HOST
         fromDatabase:
           name: ecommerce-db
