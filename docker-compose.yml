@@ -1,4 +1,4 @@
-version: "3.9"
+name: ecommerce-store
 
 services:
   db:
