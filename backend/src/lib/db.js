@@ -2,12 +2,12 @@ import mysql from "mysql2/promise";
 
 // Cấu hình database connection
 // - Nếu chạy trong Docker: docker-compose sẽ set DB_HOST=db, DB_PORT=3306
-// - Nếu chạy local (npm run dev): mặc định dùng localhost:3307 (port được map ra host)
+// - Nếu chạy local (npm run dev): mặc định dùng localhost:3306 với root user
 const {
 	DB_HOST = "localhost", // Mặc định localhost cho local dev, Docker sẽ override thành "db"
-	DB_PORT = "3307", // Mặc định port 3307 (map từ container), Docker sẽ override thành 3306
-	DB_USER = "ecomuser",
-	DB_PASSWORD = "ecompass",
+	DB_PORT = "3306", // Mặc định port 3306 cho MySQL local, Docker sẽ override thành 3306
+	DB_USER = "root", // Mặc định root user cho MySQL local
+	DB_PASSWORD = "27042004", // Mặc định password cho MySQL local
 	DB_NAME = "ecommerce"
 } = process.env;
 
